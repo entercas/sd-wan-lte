@@ -1,0 +1,5 @@
+tme-techfest-srx-01    ansible_host=10.92.76.187
+
+[all:vars]
+ansible_python_interpreter=/usr/bin/python2.7
+

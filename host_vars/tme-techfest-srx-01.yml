@@ -1,0 +1,21 @@
+---
+ansible_host: 10.92.76.187
+root_password: $1$iheMedy3$rwWTa09HVAe2kMg42nip9.
+dns_server_1: 8.8.8.8
+dns_server_2: 8.8.4.4
+wan_interface_1: ge-0/0/0
+
+lan_interface_list: [ge-0/0/1, ge-0/0/2, ge-0/0/3]
+lan_irb_ip: 192.168.1.1/24
+lan_subnet: 192.168.1.0/24
+lan_dhcp_low_ip: 192.168.1.10
+lan_dhcp_high_ip: 192.168.1.100
+
+mpim_slot: 1
+sim_slot_number: 1
+dial_number: '*99#'
+apn_name: 'broadband'
+
+critical_app_list: ['junos:SKYPE', 'junos:SALESFORCE']
+appqos_non_critical_rate: 1000 ##in Kbps
+

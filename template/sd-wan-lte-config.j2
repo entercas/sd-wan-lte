@@ -1,0 +1,306 @@
+{# System Settings #}
+system {
+    root-authentication {
+        encrypted-password {{ root_password }}; ## SECRET-DATA
+    }
+    services {
+        ssh {
+            root-login allow;
+            protocol-version v2;
+        }
+        netconf {
+            ssh;
+        }
+        dhcp-local-server {
+            group jdhcp-group {
+                interface irb.0;
+            }
+        }
+        web-management {
+            https {
+                system-generated-certificate;
+            }
+        }
+    }
+    name-server {
+        {{ dns_server_1 }};
+        {{ dns_server_2 }};
+    }
+    syslog {
+        archive size 100k files 3;
+        user * {
+            any emergency;
+        }
+        file messages {
+            any notice;
+            authorization info;
+        }
+        file interactive-commands {
+            interactive-commands any;
+        }
+    }
+    max-configurations-on-flash 5;
+    max-configuration-rollbacks 5;
+    license {
+        autoupdate {
+            url https://ae1.juniper.net/junos/key_retrieval;
+        }
+    }
+}
+security {
+    log {
+        mode stream;
+        report;
+    }
+    screen {
+        ids-option untrust-screen {
+            icmp {
+                ping-death;
+            }
+            ip {
+                source-route-option;
+                tear-drop;
+            }
+            tcp {
+                syn-flood {
+                    alarm-threshold 1024;
+                    attack-threshold 200;
+                    source-threshold 1024;
+                    destination-threshold 2048;
+                    timeout 20;
+                }
+                land;
+            }
+        }
+    }
+    nat {
+        source {
+            rule-set trust-to-untrust {
+                from zone trust;
+                to zone untrust;
+                rule source-nat-rule {
+                    match {
+                        source-address 0.0.0.0/0;
+                    }
+                    then {
+                        source-nat {
+                            interface;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    policies {
+        from-zone trust to-zone trust {
+            policy trust-to-trust {
+                match {
+                    source-address any;
+                    destination-address any;
+                    application any;
+                }
+                then {
+                    permit;
+                }
+            }
+        }
+        from-zone trust to-zone untrust {
+            policy trust-to-untrust {
+                match {
+                    source-address any;
+                    destination-address any;
+                    application any;
+                }
+                then {
+                    permit {
+                       application-services {
+                           application-traffic-control {
+                               rule-set critical_app_rs;
+                           }
+                       }
+                    }
+                }
+            }
+        }
+    }
+    zones {
+        security-zone trust {
+            host-inbound-traffic {
+                system-services {
+                    all;
+                }
+                protocols {
+                    all;
+                }
+            }
+            interfaces {
+                irb.0;
+            }
+        }
+        security-zone untrust {
+            screen untrust-screen;
+            host-inbound-traffic {
+                system-services {
+                    all;
+                }
+                protocols {
+                    all;
+                }
+            }
+            interfaces {
+                {{wan_interface_1}}.0 {
+                    host-inbound-traffic {
+                        system-services {
+                            dhcp;
+                            tftp;
+			    ssh;
+			    ping;
+                        }
+                    }
+                }
+                dl0.0 {
+                    host-inbound-traffic {
+                        system-services {
+                            tftp;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+interfaces {
+    {{wan_interface_1}} {
+        unit 0 {
+            description "WAN Interface 1 - Primary";
+            family inet {
+                address 10.92.76.187/23;
+            }
+            backup-options {
+                interface dl0.0;
+            }
+        }
+    }
+    {% for int in lan_interface_list %}{{int}} {
+        unit 0 {
+            family ethernet-switching {
+                vlan {
+                    members vlan-trust;
+                }
+            }
+        }
+    }
+    {% endfor %}cl-{{mpim_slot}}/0/0 {
+        dialer-options {
+            pool 1 priority 100;
+        }
+        cellular-options {
+            sim {{sim_slot_number}} {
+                select-profile profile-id 10;
+                radio-access automatic;
+            }
+        }
+    }
+    dl0 {
+        unit 0 {
+            family inet {
+                negotiate-address;
+            }
+            family inet6 {
+                negotiate-address;
+            }
+            dialer-options {
+                pool 1;
+                dial-string {{dial_number}};
+            }
+        }
+    }
+    irb {
+        unit 0 {
+            family inet {
+                address {{lan_irb_ip}};
+            }
+        }
+    }
+}
+class-of-service {
+    forwarding-classes {
+        queue 0 fc-class1;
+    }
+    application-traffic-control {
+        rate-limiters rate-limit-mb {
+            bandwidth-limit {{appqos_non_critical_rate}};
+            burst-size-limit 13000;
+        }
+        rule-sets critical_app_rs {
+            rule rule1 {
+                match {
+                    application [ {% for app in critical_app_list %}{{app}} {% endfor %}];
+                }
+                then {
+                    forwarding-class fc-class1;
+                    loss-priority high;
+                    log;
+                }
+            }
+            rule restrule {
+                match {
+                    application-any;
+                }
+                then {
+                    loss-priority low;
+                    rate-limit {
+                        client-to-server rate-limit-mb;
+                        server-to-client rate-limit-mb;
+                    }
+                    log;
+                }
+            }
+        }
+    }
+}
+access {
+    address-assignment {
+        pool junosDHCPPool {
+            family inet {
+                network {{lan_subnet}};
+                range junosRange {
+                    low {{lan_dhcp_low_ip}};
+                    high {{lan_dhcp_high_ip}};
+                }
+                dhcp-attributes {
+                    name-server {
+                        8.8.8.8;
+                        8.8.4.4;
+                    }
+                    router {
+                        {{lan_irb_ip.split("/")[0]}};
+                    }
+                    propagate-settings {{wan_interface_1}}.0;
+                }
+            }
+        }
+    }
+}
+vlans {
+    vlan-trust {
+        vlan-id 3;
+        l3-interface irb.0;
+    }
+}
+protocols {
+    l2-learning {
+        global-mode switching;
+    }
+    rstp {
+        interface all;
+    }
+}
+poe {
+    interface all;
+}
+routing-options {
+    static {
+        route 0.0.0.0/0 next-hop 10.92.77.254;
+    }
+}
