@@ -139,14 +139,6 @@ security {
         }
         security-zone untrust {
             screen untrust-screen;
-            host-inbound-traffic {
-                system-services {
-                    all;
-                }
-                protocols {
-                    all;
-                }
-            }
             interfaces {
                 {{wan_interface_1}}.0 {
                     host-inbound-traffic {
@@ -294,7 +286,4 @@ protocols {
     rstp {
         interface all;
     }
-}
-poe {
-    interface all;
 }
