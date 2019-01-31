@@ -153,8 +153,7 @@ security {
                         system-services {
                             dhcp;
                             tftp;
-			    ssh;
-			    ping;
+                            netconf;
                         }
                     }
                 }
@@ -174,7 +173,7 @@ interfaces {
         unit 0 {
             description "WAN Interface 1 - Primary";
             family inet {
-                address 10.92.76.187/23;
+                dhcp;
             }
             backup-options {
                 interface dl0.0;
@@ -270,8 +269,8 @@ access {
                 }
                 dhcp-attributes {
                     name-server {
-                        8.8.8.8;
-                        8.8.4.4;
+                        {{dns_server_1}};
+                        {{dns_server_2}};
                     }
                     router {
                         {{lan_irb_ip.split("/")[0]}};
@@ -298,9 +297,4 @@ protocols {
 }
 poe {
     interface all;
-}
-routing-options {
-    static {
-        route 0.0.0.0/0 next-hop 10.92.77.254;
-    }
 }
