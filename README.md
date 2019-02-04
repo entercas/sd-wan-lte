@@ -1,5 +1,5 @@
 <sd-wan-lte>
-#Juniper SRX SD-WAN configuration with LTE backup
+# Juniper SRX SD-WAN configuration with LTE backup
 
 This project can be used generate configuration and apply them on Juniper SRX devices. 
   This is the phase 1 of this project which inlcudes the following features;
