@@ -7,7 +7,7 @@ This project can be used generate configuration and apply them on Juniper SRX de
   - On the LTE backup connection, only critical applications (user defined) are prioritized and rest of the traffic is rate limited (user defined rate limit) 
   - LAN interfaces belong to 1 subnet (user defined) with an IRB interface serving as a DHCP server. 
 
-![Alt text](/Users/rrahul/Documents/Ansible/sd-wan-lte-topo.png "Topology")
+![](/images/sd-wan-lte-topo.png)
 
 ## Instructions:
 Step 1: Clone this git repo.
