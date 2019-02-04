@@ -1,6 +1,7 @@
 <sd-wan-lte>
 #Juniper SRX SD-WAN configuration with LTE backup
-  This project can be used generate configuration and apply them on Juniper SRX devices. 
+
+This project can be used generate configuration and apply them on Juniper SRX devices. 
   This is the phase 1 of this project which inlcudes the following features;
   - All outbound traffic goes via 1 primary WAN link.
   - LTE is configured to be on backup, when the primary WAN links goes down or is not available. 
