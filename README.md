@@ -25,18 +25,20 @@ Please gather following information before executing the playbook:
 ## Instructions:
 Step 1: Clone this git repo.
 
-  git clone https://github.com/rahulr-github/sd-wan-lte.git
+	git clone https://github.com/rahulr-github/sd-wan-lte.git
 
 Step 2: Add SRX hostname/IP to 'inventory' file:
 
 	Edit 'inventory' file to add the SRX hostname and IP. Format as below:
 	Format: <hostname>    ansible_host=<host IP>
-	Example: srx-test1	  ansible_host=10.10.10.10
+	
+	[Example: srx-test1	  ansible_host=10.10.10.10]
 
 Step 3: Copy sample variables file to <hostname>.yml 
 
 	cp hostname_vars.yml <hostname>.yml 
-	Example: cp hostname_vars.yml srx-test1.yml 
+	
+	[Example: cp hostname_vars.yml srx-test1.yml]
 
 Step 4: Modify variables file to have the right parameters. 
 
@@ -44,7 +46,7 @@ Step 5: Execute using 'ansible-playbook'
 
 	ansible-playbook sd-wan-lte-playbook.yml
 
-	Provides credentials to access SRX
+	[Provides credentials to access SRX]
 
 ## Notes:
 
