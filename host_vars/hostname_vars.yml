@@ -1,7 +1,7 @@
 ---
 ### Host Vars ###
-ansible_host: 10.92.76.187 #host IP 
-root_password: $1$iheMedy3$rwWTa09HVAe2kMg42nip9. #Root Password or Specific User password
+ansible_host: <host IP> #host IP 
+root_password: <encrypted password> #Encrypted Root Password or Specific User password
 dns_server_1: 8.8.8.8   # DNS Server IP 1
 dns_server_2: 8.8.4.4   # DNS Server IP 2 (optional)
 wan_interface_1: ge-0/0/0 # WAN Interface (only 1 WAN link is supported in this playbook
@@ -15,10 +15,13 @@ lan_dhcp_high_ip: 192.168.1.100 # DHCP IP high - highesh IP for the range
 mpim_slot: 1 # mPIM slot where LTE mPIM card is connected
 sim_slot_number: 1  # SIM slot where SIM card is inserted
 dial_number: '*99#' # Dial String for 3G connection 
-apn_name: 'broadband' # Access Point Name (APN) for the SIM to connect to 
+apn_name: 'broadband' # Access Point Name (APN) for the SIM to connect to - 'broadband' is for ATT
 
-critical_app_list: ['junos:SKYPE', 'junos:SALESFORCE'] # List critical apps here in ',' separated values to provide backup via LTE connection
+critical_app_list: ['junos:SALESFORCE', 'junos:OFFICE365'] # List critical apps here in ',' separated values to provide backup via LTE connection
 appqos_non_critical_rate: 1000 ##in Kbps - Rate limiting value in Kbps for other non-critical applications
+
+vars_filepath: '<absolute path>/<hostname>.yml' # change variables file name here - file under host_vars/
+vars_filename: '<hostname>.yml' # Name of the vars file
 
 ###### Host Vars End ###
 

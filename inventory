@@ -1,4 +1,4 @@
-tme-techfest-srx-01    ansible_host=10.92.76.187
+<hostname>    ansible_host=<host ip>
 
 [all:vars]
 ansible_python_interpreter=/usr/bin/python2.7
