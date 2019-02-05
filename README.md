@@ -54,7 +54,7 @@ Logs are dumped in ansible.logs file. Configuration template is present in templ
 
 ## Additional Documentation:
 
-Please vist techpubs.juniper.net for additional documentation. 
+Please vist https://www.juniper.net/documentation/en_US/junos/topics/task/configuration/lte-mpim-configuration-overview.html for additional documentation. 
 
 
 
