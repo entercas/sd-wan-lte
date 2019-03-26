@@ -20,8 +20,40 @@ apn_name: 'broadband' # Access Point Name (APN) for the SIM to connect to - 'bro
 critical_app_list: ['junos:SALESFORCE', 'junos:OFFICE365'] # List critical apps here in ',' separated values to provide backup via LTE connection
 appqos_non_critical_rate: 1000 ##in Kbps - Rate limiting value in Kbps for other non-critical applications
 
+### Active/Active --- 2 Physical WAN links with APBR to route traffic. RPM along with IP-Monitoring to failover between links ####
+### For sd-wan-2wan-lte.yml ###
+wan_interface_1_gateway: 10.1.2.1 #IP gateway for WAN1 - required for all RPM targets
+wan_interface_2_gateway: 10.1.3.1 #IP gateway for WAN2 - required for all RPM targets
+2wan_aa: 'yes'
+
+### For sd-wan-2wan-lte.yml ###
+lte_backup: 'yes' #Enable this by using 'yes' to enable LTE backup option
+
+#business_apps For sd-wan-2wan-lte.yml
+### Format: Application [ required = 'yes' or 'no', primary WAN = 'wan1' or 'wan2', secondary WAN = 'wan1' or 'wan2', lte backup = 'lte' or 'no-lte'] ###
+office365: ['yes', 'wan2', 'wan1','no-lte']
+salesforce: ['yes', 'wan1', 'wan2','lte']
+dropbox: ['yes', 'wan1', 'wan2','no-lte']
+slack: ['yes', 'wan1', 'wan2','no-lte']
+
+#multimedia For sd-wan-2wan-lte.yml
+skype: ['yes', 'wan1', 'wan2','lte']
+zoommeeting: ['yes', 'wan1', 'wan2','no-lte']
+gotomeeting: ['yes', 'wan1', 'wan2','no-lte']
+webex: ['yes', 'wan1', 'wan2','no-lte']
+youtube: ['yes', 'wan1', 'wan2','lte']
+
+#For sd-wan-2wan-lte.yml#
+### IPSec VPN for Internet Link | Please make sure to provide these values. Below is a sample ###
+ipsec_vpn_wan2: 'yes' #If WAN2 requires IPSec #
+ipsec_vpn_lte: 'yes' # If LTE requires IPSec #
+ike_wan2_psk: '1234567'
+ike_lte_psk: '123456'
+ike_remote_ip: '54.1.1.1'
+
 vars_filepath: '<absolute path>/<hostname>.yml' # change variables file name here - file under host_vars/
 vars_filename: '<hostname>.yml' # Name of the vars file
 
 ###### Host Vars End ###
+
 
