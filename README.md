@@ -10,7 +10,7 @@ This repo includes 2 options;
 
 Different options are categorized using different Jinja2 template. Select the appropriate Jinja2 template for each of the above mentioned options.
 
-##Option1: (sd-wan-lte.j2) - 1 WAN link with LTE backup
+## Option1: (sd-wan-lte.j2) - 1 WAN link with LTE backup
 
 Following features are supported; 
   - All outbound traffic goes via 1 primary WAN link.
@@ -20,7 +20,7 @@ Following features are supported;
 
 ![](/images/sd-wan-lte-topo.png)
 
-### Pre-Requisite 
+#### Pre-Requisite 
 
 Please gather following information before executing the playbook:
 
@@ -33,7 +33,7 @@ Please gather following information before executing the playbook:
   - APN Name - get access point name from your SIM carrier 
   - List of Critical Application to provide business continiuty 
 
-### Instructions:
+#### Instructions:
 Step 1: Clone this git repo:
 
 	git clone https://github.com/entercas/sd-wan-lte.git
@@ -58,15 +58,15 @@ Step 5: Execute using 'ansible-playbook'
 
 	Provides credentials to access SRX
 
-### Notes:
+#### Notes:
 
 Logs are dumped in ansible.logs file. Configuration template is present in template/ folder. This can be expaneded to configure SRX devices to do most type of configuration. 
 
-### Additional Documentation:
+#### Additional Documentation:
 
 Please vist https://www.juniper.net/documentation/en_US/junos/topics/task/configuration/lte-mpim-configuration-overview.html for additional documentation. 
 
-##Option2: (sd-wan-2wan-lte.j2) - 1 WAN link with LTE backup
+## Option2: (sd-wan-2wan-lte.j2) - 1 WAN link with LTE backup
 
 Following features are supported; 
   - 2 WAN links
@@ -88,7 +88,7 @@ Following features are supported;
 
 ![](/images/sd-wan-lte-topo2.png)
 
-### Pre-Requisite 
+#### Pre-Requisite 
 Please gather following information before executing the playbook:
 
   - DNS Servers
@@ -101,7 +101,7 @@ Please gather following information before executing the playbook:
   - APN Name - get access point name from your SIM carrier 
   - IPSec PSK and peer IKE gateway info (if need ipsec on WAN2 and LTE links)
 
-### Instructions:
+#### Instructions:
 Step 1: Clone this git repo:
 
 	git clone https://github.com/entercas/sd-wan-lte.git
