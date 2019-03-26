@@ -104,6 +104,7 @@ Please gather following information before executing the playbook:
 ### Instructions:
 Step 1: Clone this git repo:
 
+  Provides credentials to access SRX
   git clone https://github.com/rahulr-github/sd-wan-lte.git
 
 
