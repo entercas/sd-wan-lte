@@ -36,7 +36,7 @@ Please gather following information before executing the playbook:
 ### Instructions:
 Step 1: Clone this git repo:
 
-	git clone https://github.com/rahulr-github/sd-wan-lte.git
+	git clone https://github.com/entercas/sd-wan-lte.git
 
 
 Step 2: Add SRX hostname/IP to 'inventory' file:
@@ -104,7 +104,7 @@ Please gather following information before executing the playbook:
 ### Instructions:
 Step 1: Clone this git repo:
 
-	git clone https://github.com/rahulr-github/sd-wan-lte.git
+	git clone https://github.com/entercas/sd-wan-lte.git
 
 
 Step 2: Add SRX hostname/IP to 'inventory' file:
