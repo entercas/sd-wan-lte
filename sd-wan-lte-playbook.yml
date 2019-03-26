@@ -1,5 +1,5 @@
 ---
-- name: Generate and Apply configuration SD-WAN configuration to SRX
+- name: Generate and Apply SD-WAN configuration to SRX
   hosts:
     - all
   roles:
@@ -30,10 +30,10 @@
       file:
         path: "{{ tmp_dir }}"
         state: directory
-    - name: include vars from hostname.conf
+    - name: include vars from <hostname>.yml
       include_vars:
-        file: "{{ vars_filepath }}" 
-        name: "{{ vars_filename }}"
+        file: "{{vars_filepath}}"
+        name: "{{vars_filename}}"
       register: value
 
 
@@ -42,7 +42,7 @@
 
     - name: save device information using template
       template:
-        src: template/sd-wan-lte-config.j2
+        src: "{{ template }}"
         dest: "{{ conf_file }}"
 
     #- name: display 
@@ -53,14 +53,14 @@
       juniper_junos_config:
         provider: "{{ credentials }}"
         savedir: "{{ playbook_dir }}"
-        load: "merge"
+        load: "override"
         format: "text"
         src: "{{ conf_file }}"
-        comment: "Configuring basic SD-WAN (with 1 WAN link and LTE backup) with Ansible"
+        comment: "Configuring SD-WAN with Ansible Playbooks"
          
       register: response
 
-    - name: Display response of merge configuration
+    - name: Print the response
       debug: 
         var: response
 
@@ -70,6 +70,6 @@
         commands: "request modem wireless create-profile profile-id 10 access-point-name {{ apn_name }} cl-{{ mpim_slot }}/0/0 slot {{ mpim_slot }}"
       register: profileval
 
-    - name: Display LTE profile ID result
+    - name: Print profileval
       debug:
         var: profileval
