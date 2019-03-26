@@ -1,0 +1,1272 @@
+{# System Settings #}
+system {
+    root-authentication {
+        encrypted-password {{ root_password }}; ## SECRET-DATA
+    }
+    services {
+        ssh {
+            root-login allow;
+            protocol-version v2;
+        }
+        netconf {
+            ssh;
+        }
+        dhcp-local-server {
+            group jdhcp-group {
+                interface irb.0;
+            }
+        }
+        web-management {
+            https {
+                system-generated-certificate;
+            }
+        }
+    }
+    name-server {
+        {{ dns_server_1 }};
+        {{ dns_server_2 }};
+    }
+    syslog {
+        archive size 100k files 3;
+        user * {
+            any emergency;
+        }
+        file messages {
+            any notice;
+            authorization info;
+        }
+        file interactive-commands {
+            interactive-commands any;
+        }
+    }
+    max-configurations-on-flash 5;
+    max-configuration-rollbacks 5;
+    license {
+        autoupdate {
+            url https://ae1.juniper.net/junos/key_retrieval;
+        }
+    }
+}
+services {
+    rpm {
+        {# #### Office 365 ##### #}
+        {% if office365[0] == 'yes' %}probe office365_rpm_primary {
+            test office365_test {
+                probe-type icmp-ping;
+                target address 40.97.223.114; ## O365 IP
+                probe-count 5;
+                probe-interval 6;
+                thresholds {
+                    successive-loss 5;
+                    rtt 300000;
+                }
+                {% if office365[1] == 'wan1' %}destination-interface {{wan_interface_1}}.0;
+                next-hop {{wan_interface_1_gateway}};
+                {% endif %}
+                {% if office365[1] == 'wan2' %}
+                destination-interface {{wan_interface_2}}.0;
+                next-hop {{wan_interface_2_gateway}};
+                {% endif %}
+            }
+        }
+        probe office365_rpm_secondary {
+            test office365_test {
+                probe-type icmp-ping;
+                target address 40.97.223.114; ## O365 IP
+                probe-count 5;
+                probe-interval 6;
+                thresholds {
+                    successive-loss 5;
+                    rtt 300000;
+                }
+                {% if office365[2] == 'wan1' %}destination-interface {{wan_interface_1}}.0;
+                next-hop {{wan_interface_1_gateway}};
+                {% endif %}
+                {% if office365[2] == 'wan2' %}destination-interface {{wan_interface_2}}.0;
+                next-hop {{wan_interface_2_gateway}};
+                {% endif %}
+            }
+        }
+        {% endif %}
+        {# #### Skype ##### #}
+        {% if skype[0] == 'yes' %}probe skype_rpm_primary {
+            test skype_primary {
+                probe-type icmp-ping;
+                target address 13.107.8.2; ## Skype IP
+                probe-count 5;
+                probe-interval 1;
+                thresholds {
+                    successive-loss 5;
+                    rtt 60000;
+                }
+                {% if skype[1] == 'wan1' %}destination-interface {{wan_interface_1}}.0;
+                next-hop {{wan_interface_1_gateway}};
+                {% endif %}
+                {% if skype[1] == 'wan2' %}destination-interface {{wan_interface_2}}.0;
+                next-hop {{wan_interface_2_gateway}};
+                {% endif %}
+            }
+        }
+        probe skype_rpm_secondary {
+            test skype_secondary {
+                probe-type icmp-ping;
+                target address 13.107.8.2; ## Skype IP
+                probe-count 5;
+                probe-interval 1;
+                thresholds {
+                    successive-loss 5;
+                }
+                {% if skype[2] == 'wan1' %}destination-interface {{wan_interface_1}}.0;
+                next-hop {{wan_interface_1_gateway}};
+                {% endif %}
+                {% if skype[2] == 'wan2' %}destination-interface {{wan_interface_2}}.0;
+                next-hop {{wan_interface_2_gateway}};
+                {% endif %}
+            }
+        }
+        {% endif %}
+        {# #### Salesforce ##### #}
+        {% if salesforce[0] == 'yes' %}probe salesforce_rpm_primary {
+            test salesforce_primary {
+                probe-type icmp-ping;
+                target address 96.43.144.26; ## SFDC IP
+                probe-count 5;
+                probe-interval 1;
+                thresholds {
+                    successive-loss 5;
+                    rtt 60000;
+                }
+                {% if salesforce[1] == 'wan1' %}destination-interface {{wan_interface_1}}.0;
+                next-hop {{wan_interface_1_gateway}};
+                {% endif %}
+                {% if salesforce[1] == 'wan2' %}destination-interface {{wan_interface_2}}.0;
+                next-hop {{wan_interface_2_gateway}};
+                {% endif %}
+            }
+        }
+        probe salesforce_rpm_secondary {
+            test salesforce_secondary {
+                probe-type icmp-ping;
+                target address 96.43.144.26; ## SFDC IP
+                probe-count 5;
+                probe-interval 1;
+                thresholds {
+                    successive-loss 5;
+                }
+                {% if salesforce[2] == 'wan1' %}destination-interface {{wan_interface_1}}.0;
+                next-hop {{wan_interface_1_gateway}};
+                {% endif %}
+                {% if salesforce[2] == 'wan2' %}destination-interface {{wan_interface_2}}.0;
+                next-hop {{wan_interface_2_gateway}};
+                {% endif %}
+            }
+        }
+        {% endif %}
+        {# #### Dropbox ##### #}
+        {% if dropbox[0] == 'yes' %}probe dbox_rpm_primary {
+            test dbox_primary {
+                probe-type icmp-ping;
+                target address 162.125.248.1; ## Dropbox IP
+                probe-count 5;
+                probe-interval 1;
+                thresholds {
+                    successive-loss 5;
+                    rtt 60000;
+                }
+                {% if dropbox[1] == 'wan1' %}destination-interface {{wan_interface_1}}.0;
+                next-hop {{wan_interface_1_gateway}};
+                {% endif %}
+                {% if dropbox[1] == 'wan2' %}destination-interface {{wan_interface_2}}.0;
+                next-hop {{wan_interface_2_gateway}};
+                {% endif %}
+            }
+        }
+        probe dbox_rpm_secondary {
+            test dbox_secondary {
+                probe-type icmp-ping;
+                target address 162.125.248.1; ## Dropbox IP
+                probe-count 5;
+                probe-interval 1;
+                thresholds {
+                    successive-loss 5;
+                }
+                {% if dropbox[2] == 'wan1' %}destination-interface {{wan_interface_1}}.0;
+                next-hop {{wan_interface_1_gateway}};
+                {% endif %}
+                {% if dropbox[2] == 'wan2' %}destination-interface {{wan_interface_2}}.0;
+                next-hop {{wan_interface_2_gateway}};
+                {% endif %}
+            }
+        }
+        {% endif %}
+        {# #### Zoom Meeting  ##### #}
+        {% if zoommeeting[0] == 'yes' %}probe zoommeeting_rpm_primary {
+            test zoommeeting_primary {
+                probe-type icmp-ping;
+                target address 3.80.20.128; ## Zoom Meeting IP 
+                probe-count 5;
+                probe-interval 1;
+                thresholds {
+                    successive-loss 5;
+                    rtt 60000;
+                }
+                {% if zoommeeting[1] == 'wan1' %}destination-interface {{wan_interface_1}}.0;
+                next-hop {{wan_interface_1_gateway}};
+                {% endif %}
+                {% if zoommeeting[1] == 'wan2' %}destination-interface {{wan_interface_2}}.0;
+                next-hop {{wan_interface_2_gateway}};
+                {% endif %}
+            }
+        }
+        probe zoommeeting_rpm_secondary {
+            test zoommeeting_secondary {
+                probe-type icmp-ping;
+                target address 3.80.20.128; ## Zoom Meeting IP
+                probe-count 5;
+                probe-interval 1;
+                thresholds {
+                    successive-loss 5;
+                }
+                {% if zoommeeting[2] == 'wan1' %}destination-interface {{wan_interface_1}}.0;
+                next-hop {{wan_interface_1_gateway}};
+                {% endif %}
+                {% if zoommeeting[2] == 'wan2' %}destination-interface {{wan_interface_2}}.0;
+                next-hop {{wan_interface_2_gateway}};
+                {% endif %}
+            }
+        }
+        {% endif %}
+        {# #### gotomeeting  ##### #}
+        {% if gotomeeting[0] == 'yes' %}probe gotomeeting_rpm_primary {
+            test gotomeeting_primary {
+                probe-type icmp-ping;
+                target address 216.115.208.241; ## GotoMeeting IP
+                probe-count 5;
+                probe-interval 1;
+                thresholds {
+                    successive-loss 5;
+                    rtt 60000;
+                }
+                {% if gotomeeting[1] == 'wan1' %}destination-interface {{wan_interface_1}}.0;
+                next-hop {{wan_interface_1_gateway}};
+                {% endif %}
+                {% if gotomeeting[1] == 'wan2' %}destination-interface {{wan_interface_2}}.0;
+                next-hop {{wan_interface_2_gateway}};
+                {% endif %}
+            }
+        }
+        probe gotomeeting_rpm_secondary {
+            test gotomeeting_secondary {
+                probe-type icmp-ping;
+                target address 216.115.208.241;  ## GotoMeeting IP
+                probe-count 5;
+                probe-interval 1;
+                thresholds {
+                    successive-loss 5;
+                }
+                {% if gotomeeting[2] == 'wan1' %}destination-interface {{wan_interface_1}}.0;
+                next-hop {{wan_interface_1_gateway}};
+                {% endif %}
+                {% if gotomeeting[2] == 'wan2' %}destination-interface {{wan_interface_2}}.0;
+                next-hop {{wan_interface_2_gateway}};
+                {% endif %}
+            }
+        }
+        {% endif %}
+        {# #### webex  ##### #}
+        {% if webex[0] == 'yes' %}probe webex_rpm_primary {
+            test webex_primary {
+                probe-type icmp-ping;
+                target address 64.68.121.205;  ## Webex IP
+                probe-count 5;
+                probe-interval 1;
+                thresholds {
+                    successive-loss 5;
+                    rtt 60000;
+                }
+                {% if webex[1] == 'wan1' %}destination-interface {{wan_interface_1}}.0;
+                next-hop {{wan_interface_1_gateway}};
+                {% endif %}
+                {% if webex[1] == 'wan2' %}destination-interface {{wan_interface_2}}.0;
+                next-hop {{wan_interface_2_gateway}};
+                {% endif %}
+            }
+        }
+        probe webex_rpm_secondary {
+            test webex_secondary {
+                probe-type icmp-ping;
+                target address 64.68.121.205; ## Webex IP
+                probe-count 5;
+                probe-interval 1;
+                thresholds {
+                    successive-loss 5;
+                }
+                {% if webex[2] == 'wan1' %}destination-interface {{wan_interface_1}}.0;
+                next-hop {{wan_interface_1_gateway}};
+                {% endif %}
+                {% if webex[2] == 'wan2' %}destination-interface {{wan_interface_2}}.0;
+                next-hop {{wan_interface_2_gateway}};
+                {% endif %}
+            }
+        }
+        {% endif %}
+        {# #### youtube  ##### #}
+        {% if youtube[0] == 'yes' %}probe youtube_rpm_primary {
+            test youtube_primary {
+                probe-type http-get;
+                target url https://youtube.com;
+                probe-count 5;
+                probe-interval 10;
+                thresholds {
+                    successive-loss 5;
+                    rtt 300000;
+                }
+                {% if youtube[1] == 'wan1' %}destination-interface {{wan_interface_1}}.0;
+                next-hop {{wan_interface_1_gateway}};
+                {% endif %}
+                {% if youtube[1] == 'wan2' %}destination-interface {{wan_interface_2}}.0;
+                next-hop {{wan_interface_2_gateway}};
+                {% endif %}
+            }
+        }
+        probe youtube_rpm_secondary {
+            test youtube_secondary {
+                probe-type http-get;
+                target url https://youtube.com;
+                probe-count 5;
+                probe-interval 10;
+                thresholds {
+                    successive-loss 5;
+                    rtt 300000;
+                }
+                {% if youtube[2] == 'wan1' %}destination-interface {{wan_interface_1}}.0;
+                next-hop {{wan_interface_1_gateway}};
+                {% endif %}
+                {% if youtube[2] == 'wan2' %}destination-interface {{wan_interface_2}}.0;
+                next-hop {{wan_interface_2_gateway}};
+                {% endif %}
+            }
+        }
+        {% endif %}
+        {# #### Slack  ##### #}
+        {% if slack[0] == 'yes' %}probe slack_rpm_primary {
+            test slack_primary {
+                probe-type icmp-ping;
+                target address 99.84.75.163; ## Slack IP
+                probe-count 5;
+                probe-interval 1;
+                thresholds {
+                    successive-loss 5;
+                    rtt 60000;
+                }
+                {% if slack[1] == 'wan1' %}destination-interface {{wan_interface_1}}.0;
+                next-hop {{wan_interface_1_gateway}};
+                {% endif %}
+                {% if slack[1] == 'wan2' %}destination-interface {{wan_interface_2}}.0;
+                next-hop {{wan_interface_2_gateway}};
+                {% endif %}
+            }
+        }
+        probe slack_rpm_secondary {
+            test slack_secondary {
+                probe-type icmp-ping;
+                target address 99.84.75.163; ## Slack IP
+                probe-count 5;
+                probe-interval 1;
+                thresholds {
+                    successive-loss 5;
+                }
+                {% if slack[2] == 'wan1' %}destination-interface {{wan_interface_1}}.0;
+                next-hop {{wan_interface_1_gateway}};
+                {% endif %}
+                {% if slack[2] == 'wan2' %}destination-interface {{wan_interface_2}}.0;
+                next-hop {{wan_interface_2_gateway}};
+                {% endif %}
+            }
+        }
+        {% endif %}
+    }
+    ip-monitoring {
+        {# #### Office 365 ##### #}
+        {% if office365[0] == 'yes' %}policy office365_ipm_primary {
+            match {
+                rpm-probe office365_rpm_primary;
+            }
+            then {
+                preferred-route {
+                    routing-instances office365_RInstance {
+                        route 0.0.0.0/0 {
+                            {% if office365[1] == 'wan1' %}next-hop {{wan_interface_2_gateway}};{% endif %}
+                            {% if office365[1] == 'wan2' %}next-hop {{wan_interface_1_gateway}};{% endif %}
+                            preferred-metric 2;
+                        }
+                    }
+                }
+            }
+        }
+        policy office365_ipm_secondary {
+            match {
+                rpm-probe office365_rpm_secondary;
+            }
+            then {
+                preferred-route {
+                    routing-instances office365_RInstance {
+                        route 0.0.0.0/0 {
+                            {% if office365[2] == 'wan1' %}next-hop {{wan_interface_2_gateway}};{% endif %}
+                            {% if office365[2] == 'wan2' %}next-hop {{wan_interface_1_gateway}};{% endif %}
+                            preferred-metric 1;
+                        }
+                    }
+                }
+            }
+        }
+        {% endif %}
+        {# ### Skype ### #}
+        {% if skype[0] == 'yes' %}policy skype_ipm_primary {
+            match {
+                rpm-probe skype_primary;
+            }
+            then {
+                preferred-route {
+                    routing-instances skype_RInstance {
+                        route 0.0.0.0/0 {
+                            {% if skype[1] == 'wan1' %}next-hop {{wan_interface_2_gateway}};{% endif %}
+                            {% if skype[1] == 'wan2' %}next-hop {{wan_interface_1_gateway}};{% endif %}
+                            preferred-metric 2;
+                        }
+                    }
+                }
+            }
+        }
+        policy skype_ipm_secondary {
+            match {
+                rpm-probe skype_rpm_secondary;
+            }
+            then {
+                preferred-route {
+                    routing-instances skype_RInstance {
+                        route 0.0.0.0/0 {
+                            {% if skype[2] == 'wan1' %}next-hop {{wan_interface_2_gateway}};{% endif %}
+                            {% if skype[2] == 'wan2' %}next-hop {{wan_interface_1_gateway}};{% endif %}
+                            preferred-metric 1;
+                        }
+                    }
+                }
+            }
+        }
+        {% endif %}
+        {# ### Salesforce ### #}
+        {% if salesforce[0] == 'yes' %}policy salesforce_ipm_primary {
+            match {
+                rpm-probe salesforce_primary;
+            }
+            then {
+                preferred-route {
+                    routing-instances salesforce_RInstance {
+                        route 0.0.0.0/0 {
+                            {% if salesforce[1] == 'wan1' %}next-hop {{wan_interface_2_gateway}};{% endif %}
+                            {% if salesforce[1] == 'wan2' %}next-hop {{wan_interface_1_gateway}};{% endif %}
+                            preferred-metric 2;
+                        }
+                    }
+                }
+            }
+        }
+        policy salesforce_ipm_secondary {
+            match {
+                rpm-probe salesforce_rpm_secondary;
+            }
+            then {
+                preferred-route {
+                    routing-instances salesforce_RInstance {
+                        route 0.0.0.0/0 {
+                            {% if salesforce[2] == 'wan1' %}next-hop {{wan_interface_2_gateway}};
+                            {% endif %}
+                            {% if salesforce[2] == 'wan2' %}next-hop {{wan_interface_1_gateway}};
+                            {% endif %}
+                            preferred-metric 1;
+                        }
+                    }
+                }
+            }
+        }
+        {% endif %}
+        {# ### Dropbox ### #}
+        {% if dropbox[0] == 'yes' %}policy dropbox_ipm_primary {
+            match {
+                rpm-probe dropbox_primary;
+            }
+            then {
+                preferred-route {
+                    routing-instances dropbox_RInstance {
+                        route 0.0.0.0/0 {
+                            {% if dropbox[1] == 'wan1' %}next-hop {{wan_interface_2_gateway}};{% endif %}
+                            {% if dropbox[1] == 'wan2' %}next-hop {{wan_interface_1_gateway}};{% endif %}
+                            preferred-metric 2;
+                        }
+                    }
+                }
+            }
+        }
+        policy dropbox_ipm_secondary {
+            match {
+                rpm-probe dropbox_rpm_secondary;
+            }
+            then {
+                preferred-route {
+                    routing-instances dropbox_RInstance {
+                        route 0.0.0.0/0 {
+                            {% if dropbox[2] == 'wan1' %}next-hop {{wan_interface_2_gateway}};{% endif %}
+                            {% if dropbox[2] == 'wan2' %}next-hop {{wan_interface_1_gateway}};{% endif %}
+                            preferred-metric 1;
+                        }
+                    }
+                }
+            }
+        }
+        {% endif %}
+        {# ### Slack ### #}
+        {% if slack[0] == 'yes' %}policy slack_ipm_primary {
+            match {
+                rpm-probe slack_primary;
+            }
+            then {
+                preferred-route {
+                    routing-instances slack_RInstance {
+                        route 0.0.0.0/0 {
+                            {% if slack[1] == 'wan1' %}next-hop {{wan_interface_2_gateway}};{% endif %}
+                            {% if slack[1] == 'wan2' %}next-hop {{wan_interface_1_gateway}};{% endif %}
+                            preferred-metric 2;
+                        }
+                    }
+                }
+            }
+        }
+        policy slack_ipm_secondary {
+            match {
+                rpm-probe slack_rpm_secondary;
+            }
+            then {
+                preferred-route {
+                    routing-instances slack_RInstance {
+                        route 0.0.0.0/0 {
+                            {% if slack[2] == 'wan1' %}next-hop {{wan_interface_2_gateway}};{% endif %}
+                            {% if slack[2] == 'wan2' %}next-hop {{wan_interface_1_gateway}};{% endif %}
+                            preferred-metric 1;
+                        }
+                    }
+                }
+            }
+        }
+        {% endif %}
+        {# ### zoommeeting ### #}
+        {% if zoommeeting[0] == 'yes' %}policy zoommeeting_ipm_primary {
+            match {
+                rpm-probe zoommeeting_primary;
+            }
+            then {
+                preferred-route {
+                    routing-instances zoommeeting_RInstance {
+                        route 0.0.0.0/0 {
+                            {% if zoommeeting[1] == 'wan1' %}next-hop {{wan_interface_2_gateway}};{% endif %}
+                            {% if zoommeeting[1] == 'wan2' %}next-hop {{wan_interface_1_gateway}};{% endif %}
+                            preferred-metric 2;
+                        }
+                    }
+                }
+            }
+        }
+        policy zoommeeting_ipm_secondary {
+            match {
+                rpm-probe zoommeeting_rpm_secondary;
+            }
+            then {
+                preferred-route {
+                    routing-instances zoommeeting_RInstance {
+                        route 0.0.0.0/0 {
+                            {% if zoommeeting[2] == 'wan1' %}next-hop {{wan_interface_2_gateway}};{% endif %}
+                            {% if zoommeeting[2] == 'wan2' %}next-hop {{wan_interface_1_gateway}};{% endif %}
+                            preferred-metric 1;
+                        }
+                    }
+                }
+            }
+        }
+        {% endif %}
+        {# ### gotomeeting ### #}
+        {% if gotomeeting[0] == 'yes' %}policy gotomeeting_ipm_primary {
+            match {
+                rpm-probe gotomeeting_primary;
+            }
+            then {
+                preferred-route {
+                    routing-instances gotomeeting_RInstance {
+                        route 0.0.0.0/0 {
+                            {% if gotomeeting[1] == 'wan1' %}next-hop {{wan_interface_2_gateway}};{% endif %}
+                            {% if gotomeeting[1] == 'wan2' %}next-hop {{wan_interface_1_gateway}};{% endif %}
+                            preferred-metric 2;
+                        }
+                    }
+                }
+            }
+        }
+        policy zoommeeting_ipm_secondary {
+            match {
+                rpm-probe zoommeeting_rpm_secondary;
+            }
+            then {
+                preferred-route {
+                    routing-instances zoommeeting_RInstance {
+                        route 0.0.0.0/0 {
+                            {% if zoommeeting[2] == 'wan1' %}next-hop {{wan_interface_2_gateway}};{% endif %}
+                            {% if zoommeeting[2] == 'wan2' %}next-hop {{wan_interface_1_gateway}};{% endif %}
+                            preferred-metric 1;
+                        }
+                    }
+                }
+            }
+        }
+        {% endif %}   
+        {# ### webex ### #}
+        {% if webex[0] == 'yes' %}policy webex_ipm_primary {
+            match {
+                rpm-probe webex_primary;
+            }
+            then {
+                preferred-route {
+                    routing-instances webex_RInstance {
+                        route 0.0.0.0/0 {
+                            {% if webex[1] == 'wan1' %}next-hop {{wan_interface_2_gateway}};{% endif %}
+                            {% if webex[1] == 'wan2' %}next-hop {{wan_interface_1_gateway}};{% endif %}
+                            preferred-metric 2;
+                        }
+                    }
+                }
+            }
+        }
+        policy webex_ipm_secondary {
+            match {
+                rpm-probe webex_rpm_secondary;
+            }
+            then {
+                preferred-route {
+                    routing-instances webex_RInstance {
+                        route 0.0.0.0/0 {
+                            {% if webex[2] == 'wan1' %}next-hop {{wan_interface_2_gateway}};{% endif %}
+                            {% if webex[2] == 'wan2' %}next-hop {{wan_interface_1_gateway}};{% endif %}
+                            preferred-metric 1;
+                        }
+                    }
+                }
+            }
+        }
+        {% endif %}
+        {# ### youtube ### #}
+        {% if youtube[0] == 'yes' %}policy youtube_ipm_primary {
+            match {
+                rpm-probe youtube_primary;
+            }
+            then {
+                preferred-route {
+                    routing-instances youtube_RInstance {
+                        route 0.0.0.0/0 {
+                            {% if youtube[1] == 'wan1' %}next-hop {{wan_interface_2_gateway}};{% endif %}
+                            {% if youtube[1] == 'wan2' %}next-hop {{wan_interface_1_gateway}};{% endif %}
+                            preferred-metric 2;
+                        }
+                    }
+                }
+            }
+        }
+        policy youtube_ipm_secondary {
+            match {
+                rpm-probe youtube_rpm_secondary;
+            }
+            then {
+                preferred-route {
+                    routing-instances youtube_RInstance {
+                        route 0.0.0.0/0 {
+                            {% if youtube[2] == 'wan1' %}next-hop {{wan_interface_2_gateway}};{% endif %}
+                            {% if youtube[2] == 'wan2' %}next-hop {{wan_interface_1_gateway}};{% endif %}
+                            preferred-metric 1;
+                        }
+                    }
+                }
+            }
+        }
+        {% endif %}  
+    }
+}
+security {
+    {% if ipsec_vpn_wan2 == 'yes' %}
+    ike {
+        proposal ike-proposal1 {
+            description "IPSec VPN for Internet Link";
+            authentication-method pre-shared-keys;
+            encryption-algorithm aes-256-gcm;
+            lifetime-seconds 1800;
+        }
+        proposal ike-proposal-lte {
+            description "aws vpn on lte";
+            authentication-method pre-shared-keys;
+            encryption-algorithm aes-256-gcm;
+            lifetime-seconds 300;
+        }
+        policy ike-policy1 {
+            mode aggressive;
+            proposals ike-proposal1;
+            pre-shared-key ascii-text {{ike_wan2_psk}}; ## SECRET-DATA
+        }
+        policy ike-policy-lte {
+            mode aggressive;
+            proposals ike-proposal-lte;
+            pre-shared-key ascii-text {{ike_lte_psk}}; ## SECRET-DATA
+        }
+        gateway ike-gateway1 {
+            ike-policy ike-policy1;
+            address {{ike_remote_ip}};
+            local-identity user-at-hostname "uservpn@juniper.net";
+            external-interface {{wan_interface_2}};
+            version v2-only;
+        }
+        gateway ike-gateway-lte {
+            ike-policy ike-policy-lte;
+            address {{ike_remote_ip}};
+            local-identity user-at-hostname "dl0@juniper.net";
+            external-interface dl0.0;
+            version v2-only;
+        }
+    }
+    ipsec {
+        proposal ipsec-proposal1 {
+            description "ipsec for Internet WAN2";
+            protocol esp;
+            encryption-algorithm aes-256-gcm;
+            lifetime-seconds 1800;
+        }
+        proposal ipsec-proposal-lte {
+            description "IPSec for LTE link";
+            protocol esp;
+            encryption-algorithm aes-256-gcm;
+            lifetime-seconds 300;
+        }
+        policy ipsec-policy1 {
+            perfect-forward-secrecy {
+                keys group2;
+            }
+            proposals ipsec-proposal1;
+        }
+        policy ipsec-policy-lte {
+            perfect-forward-secrecy {
+                keys group2;
+            }
+            proposals ipsec-proposal-lte;
+        }
+        vpn ipsec-vpn1 {
+            bind-interface st0.0;
+            ike {
+                gateway ike-gateway1;
+                ipsec-policy ipsec-policy1;
+            }
+            establish-tunnels immediately;
+        }
+        vpn ipsec-vpn-lte {
+            bind-interface st0.1;
+            ike {
+                gateway ike-gateway-lte;
+                ipsec-policy ipsec-policy-lte;
+            }
+            establish-tunnels on-traffic;
+        }
+    }
+    flow {
+        tcp-mss {
+            ipsec-vpn {
+                mss 1379;
+            }
+        }
+    }
+    {% endif %}
+    screen {
+        ids-option untrust-screen {
+            icmp {
+                ping-death;
+            }
+            ip {
+                source-route-option;
+                tear-drop;
+            }
+            tcp {
+                syn-flood {
+                    alarm-threshold 1024;
+                    attack-threshold 200;
+                    source-threshold 1024;
+                    destination-threshold 2048;
+                    timeout 20;
+                }
+                land;
+            }
+        }
+    }
+    nat {
+        source {
+            rule-set trust-to-untrust {
+                from zone trust;
+                to zone untrust;
+                rule source-nat-rule {
+                    match {
+                        source-address 0.0.0.0/0;
+                    }
+                    then {
+                        source-nat {
+                            interface;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    policies {
+        from-zone trust to-zone trust {
+            policy trust-to-trust {
+                match {
+                    source-address any;
+                    destination-address any;
+                    application any;
+                }
+                then {
+                    permit;
+                }
+            }
+        }
+        from-zone trust to-zone untrust {
+            policy trust-to-untrust {
+                match {
+                    source-address any;
+                    destination-address any;
+                    application any;
+                }
+                then {
+                    permit;
+                }
+            }
+        }
+    }
+    zones {
+        security-zone trust {
+            host-inbound-traffic {
+                system-services {
+                    all;
+                }
+                protocols {
+                    all;
+                }
+            }
+            interfaces {
+                irb.0;
+            }
+            advance-policy-based-routing-profile {
+                apbr_profile;
+            }
+        }
+        security-zone untrust {
+            screen untrust-screen;
+            interfaces {
+                {{wan_interface_1}}.0 {
+                    host-inbound-traffic {
+                        system-services {
+                            dhcp;
+                            netconf;
+                            ping;
+                        }
+                    }
+                }
+                {{wan_interface_2}}.0 {
+                    host-inbound-traffic {
+                        system-services {
+                            {% if ipsec_vpn_wan2 == 'yes' %}ike;{% endif %}
+                            dhcp;
+                            netconf;
+                            ping;
+                        }
+                    }
+                }
+                {% if lte_backup == 'yes' %}dl0.0 {
+                    host-inbound-traffic {
+                        system-services {
+                            {% if ipsec_vpn_lte == 'yes' %}ike;{% endif %}
+                            tftp;
+                        }
+                    }
+                }{% endif %}
+                {% if ipsec_vpn_wan2 == 'yes' %}st0.0;{% endif %}
+                {% if ipsec_vpn_lte == 'yes' %}st0.1;{% endif %}
+            }
+        }
+    }
+    advance-policy-based-routing {
+        tunables {
+            max-route-change 0;
+        }
+        profile apbr_profile {
+            {% if office365[0] == 'yes' %}rule office365_rule {
+                match {
+                    dynamic-application junos:OFFICE365-CREATE-CONVERSATION;
+                }
+                then {
+                    routing-instance office365_RInstance;
+                }
+            }{% endif %}
+            {% if skype[0] == 'yes' %}rule skype_rule {
+                match {
+                    dynamic-application junos:SKYPE;
+                }
+                then {
+                    routing-instance skype_RInstance;
+                }
+            }{% endif %}
+            {% if salesforce[0] == 'yes' %}rule salesforce_rule {
+                match {
+                    dynamic-application junos:SALESFORCE;
+                }
+                then {
+                    routing-instance salesforce_RInstance;
+                }
+            }{% endif %}
+            {% if dropbox[0] == 'yes' %}rule dropbox_rule {
+                match {
+                    dynamic-application junos:DROPBOX;
+                }
+                then {
+                    routing-instance dropbox_RInstance;
+                }
+            }{% endif %}
+            {% if slack[0] == 'yes' %}rule slack_rule {
+                match {
+                    dynamic-application junos:SLACK;
+                }
+                then {
+                    routing-instance slack_RInstance;
+                }
+            }{% endif %}
+            {% if zoommeeting[0] == 'yes' %}rule zoommeeting_rule {
+                match {
+                    dynamic-application junos:ZOOM;
+                }
+                then {
+                    routing-instance zoommeeting_RInstance;
+                }
+            }{% endif %}
+            {% if gotomeeting[0] == 'yes' %}rule gotomeeting_rule {
+                match {
+                    dynamic-application junos:GOTOMEETING;
+                }
+                then {
+                    routing-instance gotomeeting_RInstance;
+                }
+            }{% endif %}
+            {% if webex[0] == 'yes' %}rule webex_rule {
+                match {
+                    dynamic-application junos:WEBEX;
+                }
+                then {
+                    routing-instance webex_RInstance;
+                }
+            }{% endif %}
+            {% if youtube[0] == 'yes' %}rule youtube_rule {
+                match {
+                    dynamic-application junos:YOUTUBE;
+                }
+                then {
+                    routing-instance youtube_RInstance;
+                }
+            }
+           {% endif %}   
+        }
+    }
+}
+interfaces {
+    {{wan_interface_1}} {
+        unit 0 {
+            description "WAN Interface 1 - Primary";
+        family inet {
+                dhcp;
+            }
+        }
+    }
+    {{wan_interface_2}} {
+        unit 0 {
+            description WAN2;
+            family inet {
+                dhcp;
+            }
+        }
+    }
+    {% for int in lan_interface_list %}{{int}} {
+        unit 0 {
+            family ethernet-switching {
+                vlan {
+                    members vlan-trust;
+                }
+            }
+        }
+    }
+    {% endfor %} {% if lte_backup == 'yes' %}cl-{{mpim_slot}}/0/0 {
+        dialer-options {
+            pool 1 priority 100;
+        }
+        cellular-options {
+            sim {{sim_slot_number}} {
+                select-profile profile-id 10;
+                radio-access automatic;
+            }
+        }
+    }
+    dl0 {
+        unit 0 {
+            family inet {
+                negotiate-address;
+            }
+            family inet6 {
+                negotiate-address;
+            }
+            dialer-options {
+                pool 1;
+                dial-string {{dial_number}};
+            }
+        }
+    }{% endif %}
+    irb {
+        unit 0 {
+            family inet {
+                address {{lan_irb_ip}};
+            }
+        }
+    } {% if ipsec_vpn_wan2 == 'yes' or ipsec_vpn_lte == 'yes' %}
+    st0 {
+        {% if ipsec_vpn_wan2 == 'yes' %}
+        unit 0 {
+            family inet 
+        }{% endif %}
+        {% if ipsec_vpn_lte == 'yes' %}
+        unit 1 {
+            family inet
+        }{% endif %}
+    }{% endif %}
+}
+access {
+    address-assignment {
+        pool junosDHCPPool {
+            family inet {
+                network {{lan_subnet}};
+                range junosRange {
+                    low {{lan_dhcp_low_ip}};
+                    high {{lan_dhcp_high_ip}};
+                }
+                dhcp-attributes {
+                    name-server {
+                        {{dns_server_1}};
+                        {{dns_server_2}};
+                    }
+                    router {
+                        {{lan_irb_ip.split("/")[0]}};
+                    }
+                    propagate-settings {{wan_interface_1}}.0;
+                }
+            }
+        }
+    }
+}
+routing-instances {
+    {% if office365[0] == 'yes' %}office365_RInstance {
+        instance-type forwarding;
+        routing-options {
+            static {
+                route 0.0.0.0/0 {
+                    {% if office365[1] == 'wan1' %}qualified-next-hop {{wan_interface_1_gateway}} { preference 10; }{% endif %}
+                    {% if ((office365[1] == 'wan2') and (ipsec_vpn_wan2 == 'yes')) %} qualified-next-hop st0.0 { preference 10; }{% elif ((office365[1] == 'wan2') and (ipsec_vpn_wan2 != 'yes')) %} qualified-next-hop {{wan_interface_2_gateway}} { preference 10; }{% endif %}
+
+                    {% if office365[2] == 'wan1' %}qualified-next-hop {{wan_interface_1_gateway}} { preference 20; }{% endif %}
+                    {% if ((office365[2] == 'wan2') and (ipsec_vpn_wan2 == 'yes')) %} qualified-next-hop st0.0 { preference 20; }{% elif ((office365[2] == 'wan2') and (ipsec_vpn_wan2 != 'yes')) %} qualified-next-hop {{wan_interface_2_gateway}} { preference 20; }{% endif %}
+                    {% if lte_backup == 'yes' %}
+                    {% if ((office365[3] == 'lte') and (ipsec_vpn_lte == 'yes')) %}qualified-next-hop st0.1 { preference 30; }{% elif ((office365[3] == 'lte') and (ipsec_vpn_lte != 'yes')) %} qualified-next-hop dl0.0 { preference 30; }{% endif %}
+                    {% endif %}
+                }
+            }
+        }
+    }{% endif %}
+    {% if skype[0] == 'yes' %}skype_RInstance {
+        instance-type forwarding;
+        routing-options {
+            static {
+                route 0.0.0.0/0 {
+                    {% if skype[1] == 'wan1' %}qualified-next-hop {{wan_interface_1_gateway}} { preference 10; }{% endif %}
+                    {% if ((skype[1] == 'wan2') and (ipsec_vpn_wan2 == 'yes')) %} qualified-next-hop st0.0 { preference 10; }{% elif ((skype[1] == 'wan2') and (ipsec_vpn_wan2 != 'yes')) %} qualified-next-hop {{wan_interface_2_gateway}} { preference 10; }{% endif %}
+                    
+                    {% if skype[2] == 'wan1' %}qualified-next-hop {{wan_interface_1_gateway}} { preference 20; }{% endif %}
+                    {% if ((skype[2] == 'wan2') and (ipsec_vpn_wan2 == 'yes')) %} qualified-next-hop st0.0 { preference 20; }{% elif ((skype[2] == 'wan2') and (ipsec_vpn_wan2 != 'yes')) %} qualified-next-hop {{wan_interface_2_gateway}} { preference 20; }{% endif %}
+                    {% if lte_backup == 'yes' %}
+                    {% if ((skype[3] == 'lte') and (ipsec_vpn_lte == 'yes')) %}qualified-next-hop st0.1 { preference 30; }{% elif ((skype[3] == 'lte') and  (ipsec_vpn_lte != 'yes')) %} qualified-next-hop dl0.0 { preference 30; }{% endif %}
+                    {% endif %}
+                }
+            }
+        }
+    }{% endif %}
+    {% if salesforce[0] == 'yes' %}salesforce_RInstance {
+        instance-type forwarding;
+        routing-options {
+            static {
+                route 0.0.0.0/0 {
+                    {% if salesforce[1] == 'wan1' %}qualified-next-hop {{wan_interface_1_gateway}} { preference 10; }{% endif %}
+                    {% if ((salesforce[1] == 'wan2') and (ipsec_vpn_wan2 == 'yes')) %} qualified-next-hop st0.0 { preference 10; }{% elif ((salesforce[1] == 'wan2') and (ipsec_vpn_wan2 != 'yes')) %} qualified-next-hop {{wan_interface_2_gateway}} { preference 10; }{% endif %}
+                    
+                    {% if salesforce[2] == 'wan1' %}qualified-next-hop {{wan_interface_1_gateway}} { preference 20; }{% endif %}
+                    {% if ((salesforce[2] == 'wan2') and (ipsec_vpn_wan2 == 'yes')) %} qualified-next-hop st0.0 { preference 20; }{% elif ((salesforce[2] == 'wan2') and (ipsec_vpn_wan2 != 'yes')) %} qualified-next-hop {{wan_interface_2_gateway}} { preference 20; }{% endif %}
+                    {% if lte_backup == 'yes' %}
+                    {% if ((salesforce[3] == 'lte') and (ipsec_vpn_lte == 'yes')) %}qualified-next-hop st0.1 { preference 30; }{% elif ((salesforce[3] == 'lte') and (ipsec_vpn_lte != 'yes')) %} qualified-next-hop dl0.0 { preference 30; }{% endif %}
+                    {% endif %}
+                }
+            }
+        }
+    }{% endif %}
+    {% if dropbox[0] == 'yes' %}dropbox_RInstance {
+        instance-type forwarding;
+        routing-options {
+            static {
+                route 0.0.0.0/0 {
+                    {% if dropbox[1] == 'wan1' %}qualified-next-hop {{wan_interface_1_gateway}} { preference 10; }{% endif %}
+                    {% if ((dropbox[1] == 'wan2') and (ipsec_vpn_wan2 == 'yes')) %} qualified-next-hop st0.0 { preference 10; }{% elif ((dropbox[1] == 'wan2') and (ipsec_vpn_wan2 != 'yes')) %} qualified-next-hop {{wan_interface_2_gateway}} { preference 10; }{% endif %}
+                    
+                    {% if dropbox[2] == 'wan1' %}qualified-next-hop {{wan_interface_1_gateway}} { preference 20; }{% endif %}
+                    {% if ((dropbox[2] == 'wan2') and (ipsec_vpn_wan2 == 'yes')) %} qualified-next-hop st0.0 { preference 20; }{% elif ((dropbox[2] == 'wan2') and (ipsec_vpn_wan2 != 'yes')) %} qualified-next-hop {{wan_interface_2_gateway}} { preference 20; }{% endif %}
+                    {% if lte_backup == 'yes' %}
+                    {% if ((dropbox[3] == 'lte') and (ipsec_vpn_lte == 'yes')) %}qualified-next-hop st0.1 { preference 30; }{% elif ((dropbox[3] == 'lte') and (ipsec_vpn_lte != 'yes')) %} qualified-next-hop dl0.0 { preference 30; }{% endif %}
+                    {% endif %}
+                }
+            }
+        }
+    }{% endif %}
+    {% if slack[0] == 'yes' %}slack_RInstance {
+        instance-type forwarding;
+        routing-options {
+            static {
+                route 0.0.0.0/0 {
+                    {% if slack[1] == 'wan1' %}qualified-next-hop {{wan_interface_1_gateway}} { preference 10; }{% endif %}
+                    {% if ((slack[1] == 'wan2') and (ipsec_vpn_wan2 == 'yes')) %} qualified-next-hop st0.0 { preference 10; }{% elif ((slack[1] == 'wan2') and (ipsec_vpn_wan2 != 'yes')) %} qualified-next-hop {{wan_interface_2_gateway}} { preference 10; }{% endif %}
+                    
+                    {% if slack[2] == 'wan1' %}qualified-next-hop {{wan_interface_1_gateway}} { preference 20; }{% endif %}
+                    {% if ((slack[2] == 'wan2') and (ipsec_vpn_wan2 == 'yes')) %} qualified-next-hop st0.0 { preference 20; }{% elif ((slack[2] == 'wan2') and (ipsec_vpn_wan2 != 'yes')) %} qualified-next-hop {{wan_interface_2_gateway}} { preference 20; }{% endif %}
+                    {% if lte_backup == 'yes' %}
+                    {% if ((slack[3] == 'lte') and (ipsec_vpn_lte == 'yes')) %}qualified-next-hop st0.1 { preference 30; }{% elif ((slack[3] == 'lte') and (ipsec_vpn_lte != 'yes')) %} qualified-next-hop dl0.0 { preference 30; }{% endif %}
+                    {% endif %}
+                }
+            }
+        }
+    }{% endif %}
+    {% if zoommeeting[0] == 'yes' %}zoommeeting_RInstance {
+        instance-type forwarding;
+        routing-options {
+            static {
+                route 0.0.0.0/0 {
+                    {% if zoommeeting[1] == 'wan1' %}qualified-next-hop {{wan_interface_1_gateway}} { preference 10; }{% endif %}
+                    {% if ((zoommeeting[1] == 'wan2') and (ipsec_vpn_wan2 == 'yes')) %} qualified-next-hop st0.0 { preference 10; }{% elif ((zoommeeting[1] == 'wan2') and (ipsec_vpn_wan2 != 'yes')) %} qualified-next-hop {{wan_interface_2_gateway}} { preference 10; }{% endif %}
+                    
+                    {% if zoommeeting[2] == 'wan1' %}qualified-next-hop {{wan_interface_1_gateway}} { preference 20; }{% endif %}
+                    {% if ((zoommeeting[2] == 'wan2') and (ipsec_vpn_wan2 == 'yes')) %} qualified-next-hop st0.0 { preference 20; }{% elif ((zoommeeting[2] == 'wan2') and (ipsec_vpn_wan2 != 'yes')) %} qualified-next-hop {{wan_interface_2_gateway}} { preference 20; }{% endif %}
+                    {% if lte_backup == 'yes' %}
+                    {% if ((zoommeeting[3] == 'lte') and (ipsec_vpn_lte == 'yes')) %}qualified-next-hop st0.1 { preference 30; }{% elif ((zoommeeting[3] == 'lte') and (ipsec_vpn_lte != 'yes')) %} qualified-next-hop dl0.0 { preference 30; }{% endif %}
+                    {% endif %}
+                }
+            }
+        }
+    }{% endif %}
+    {% if gotomeeting[0] == 'yes' %}gotomeeting_RInstance {
+        instance-type forwarding;
+        routing-options {
+            static {
+                route 0.0.0.0/0 {
+                    {% if gotomeeting[1] == 'wan1' %}qualified-next-hop {{wan_interface_1_gateway}} { preference 10; }{% endif %}
+                    {% if ((gotomeeting[1] == 'wan2') and (ipsec_vpn_wan2 == 'yes')) %} qualified-next-hop st0.0 { preference 10; }{% elif ((gotomeeting[1] == 'wan2') and (ipsec_vpn_wan2 != 'yes')) %} qualified-next-hop {{wan_interface_2_gateway}} { preference 10; }{% endif %}
+                    
+                    {% if gotomeeting[2] == 'wan1' %}qualified-next-hop {{wan_interface_1_gateway}} { preference 20; }{% endif %}
+                    {% if ((gotomeeting[2] == 'wan2') and (ipsec_vpn_wan2 == 'yes')) %} qualified-next-hop st0.0 { preference 20; }{% elif ((gotomeeting[2] == 'wan2') and (ipsec_vpn_wan2 != 'yes')) %} qualified-next-hop {{wan_interface_2_gateway}} { preference 20; }{% endif %}
+                    {% if lte_backup == 'yes' %}
+                    {% if ((gotomeeting[3] == 'lte') and (ipsec_vpn_lte == 'yes')) %}qualified-next-hop st0.1 { preference 30; }{% elif ((gotomeeting[3] == 'lte') and (ipsec_vpn_lte != 'yes')) %} qualified-next-hop dl0.0 { preference 30; }{% endif %}
+                    {% endif %}
+                }
+            }
+        }
+    }{% endif %}
+    {% if webex[0] == 'yes' %}webex_RInstance {
+        instance-type forwarding;
+        routing-options {
+            static {
+                route 0.0.0.0/0 {
+                    {% if webex[1] == 'wan1' %}qualified-next-hop {{wan_interface_1_gateway}} { preference 10; }{% endif %}
+                    {% if ((webex[1] == 'wan2') and (ipsec_vpn_wan2 == 'yes')) %} qualified-next-hop st0.0 { preference 10; }{% elif ((webex[1] == 'wan2') and (ipsec_vpn_wan2 != 'yes')) %} qualified-next-hop {{wan_interface_2_gateway}} { preference 10; }{% endif %}
+                    
+                    {% if webex[2] == 'wan1' %}qualified-next-hop {{wan_interface_1_gateway}} { preference 20; }{% endif %}
+                    {% if ((webex[2] == 'wan2') and (ipsec_vpn_wan2 == 'yes')) %} qualified-next-hop st0.0 { preference 20; }{% elif ((webex[2] == 'wan2') and (ipsec_vpn_wan2 != 'yes')) %} qualified-next-hop {{wan_interface_2_gateway}} { preference 20; }{% endif %}
+                    {% if lte_backup == 'yes' %}
+                    {% if ((webex[3] == 'lte') and (ipsec_vpn_lte == 'yes')) %}qualified-next-hop st0.1 { preference 30; }{% elif ((webex[3] == 'lte') and (ipsec_vpn_lte != 'yes')) %} qualified-next-hop dl0.0 { preference 30; }{% endif %}
+                    {% endif %}
+                }
+            }
+        }
+    }{% endif %}
+    {% if youtube[0] == 'yes' %}youtube_RInstance {
+        instance-type forwarding;
+        routing-options {
+            static {
+                route 0.0.0.0/0 {
+                    {% if youtube[1] == 'wan1' %}qualified-next-hop {{wan_interface_1_gateway}} { preference 10; }{% endif %}
+                    {% if ((youtube[1] == 'wan2') and (ipsec_vpn_wan2 == 'yes')) %} qualified-next-hop st0.0 { preference 10; }{% elif ((youtube[1] == 'wan2') and (ipsec_vpn_wan2 != 'yes')) %} qualified-next-hop {{wan_interface_2_gateway}} { preference 10; }{% endif %}
+                    
+                    {% if youtube[2] == 'wan1' %}qualified-next-hop {{wan_interface_1_gateway}} { preference 20; }{% endif %}
+                    {% if ((youtube[2] == 'wan2') and (ipsec_vpn_wan2 == 'yes')) %} qualified-next-hop st0.0 { preference 20; }{% elif ((youtube[2] == 'wan2') and (ipsec_vpn_wan2 != 'yes')) %} qualified-next-hop {{wan_interface_2_gateway}} { preference 20; }{% endif %}
+                    {% if lte_backup == 'yes' %}
+                    {% if ((youtube[3] == 'lte') and (ipsec_vpn_lte == 'yes')) %}qualified-next-hop st0.1 { preference 30; }{% elif ((youtube[3] == 'lte') and (ipsec_vpn_lte != 'yes')) %} qualified-next-hop dl0.0 { preference 30; }{% endif %}
+                    {% endif %}
+                }
+            }
+        }
+    }
+    {% endif %}
+}
+vlans {
+    vlan-trust {
+        vlan-id 3;
+        l3-interface irb.0;
+    }
+}
+protocols {
+    l2-learning {
+        global-mode switching;
+    }
+    rstp {
+        interface all;
+    }
+}
+routing-options {
+    interface-routes {
+        rib-group inet apbr_group;
+    }
+    {# Remove for publishing #}
+    static { 
+        route 0.0.0.0/0 next-hop 10.92.77.254;
+    }
+    rib-groups {
+        apbr_group {
+            import-rib inet.0
+            {% if office365[0] == 'yes' %}import-rib office365_RInstance.inet.0;{% endif %}
+            {% if skype[0] == 'yes' %}import-rib skype_RInstance.inet.0;{% endif %}
+            {% if salesforce[0] == 'yes' %}import-rib salesforce_RInstance.inet.0;{% endif %}
+            {% if dropbox[0] == 'yes' %}import-rib dropbox_RInstance.inet.0;{% endif %}
+            {% if slack[0] == 'yes' %}import-rib slack_RInstance.inet.0;{% endif %}
+            {% if zoommeeting[0] == 'yes' %}import-rib zoommeeting_RInstance.inet.0;{% endif %}
+            {% if gotomeeting[0] == 'yes' %}import-rib gotomeeting_RInstance.inet.0;{% endif %}
+            {% if webex[0] == 'yes' %}import-rib webex_RInstance.inet.0;{% endif %}
+            {% if youtube[0] == 'yes' %}import-rib youtube_RInstance.inet.0;{% endif %}
+            }
+    }
+}
