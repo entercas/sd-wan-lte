@@ -10,7 +10,7 @@ This repo includes 2 options;
 
 Different options are categorized using different Jinja2 template. Select the appropriate Jinja2 template for each of the above mentioned options.
 
-## Option1: (sd-wan-lte.j2) - 1 WAN link with LTE backup
+## SD-WAN Playbook1: (sd-wan-lte.j2) - 1 WAN link with LTE backup [Active/Backup]
 
 Following features are supported; 
   - All outbound traffic goes via 1 primary WAN link.
@@ -66,12 +66,12 @@ Logs are dumped in ansible.logs file. Configuration template is present in templ
 
 Please vist https://www.juniper.net/documentation/en_US/junos/topics/task/configuration/lte-mpim-configuration-overview.html for additional documentation. 
 
-## Option2: (sd-wan-2wan-lte.j2) - 1 WAN link with LTE backup
+## SD-WAN Playbook2: (sd-wan-2wan-lte.j2) - 2 WAN link with LTE backup [Active/Active]
 
 Following features are supported; 
   - 2 WAN links
     + 1 (MPLS or Internet)- WAN1
-    + 2 (Internet) - WAN2
+    + 1 (Internet) - WAN2
   - 1 LTE backup link 
   - IPSec configuration option available for WAN2 and LTE links
   - Pre-defined set of Applications: 
